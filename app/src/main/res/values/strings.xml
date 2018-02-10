@@ -1,4 +1,16 @@
 <resources>
     <string name="app_name">VisitReportHTS</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string-array name="role">
+        <item>Sales</item>
+        <item>Sales manager</item>
+    </string-array>
+    <string-array name="nav_item_home">
+        <item>My Circles</item>
+        <item>Visit Plan</item>
+        <item>Customer</item>
+        <item>Settings</item>
+    </string-array>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>

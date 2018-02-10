@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context="com.example.folcotandiono.visitreporthts.LoginActivity">
+    android:id="@+id/registerLinearLayout"
+    tools:context="com.example.folcotandiono.visitreporthts.RegisterActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,57 +16,62 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/logo_hts" />
+            android:src="@drawable/logo_hts"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Visit Report"></TextView>
+            android:text="Visit Report">
+        </TextView>
 
         <EditText
-            android:id="@+id/loginEmailPhonenumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email/phonenumber" />
+            android:id="@+id/registerEmail"
+            android:hint="Email"/>
 
         <EditText
-            android:id="@+id/loginPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:inputType="textPassword" />
+            android:id="@+id/registerPhonenumber"
+            android:inputType="phone"
+            android:hint="Phonenumber"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/registerName"
+            android:hint="Name"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:id="@+id/registerPassword"
+            android:hint="Password"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:id="@+id/registerRePassword"
+            android:hint="Re-Password"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Choose your role : " />
+            android:text="Choose your role : "/>
 
         <Spinner
-            android:id="@+id/loginRole"
+            android:id="@+id/registerRole"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
 
         <Button
-            android:id="@+id/loginLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Login" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:id="@+id/loginRegister"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_alignParentBottom="true"
-                android:text="Don't have account? sign up" />
-
-        </RelativeLayout>
+            android:id="@+id/registerRegister"
+            android:text="Register"/>
 
     </LinearLayout>
 
