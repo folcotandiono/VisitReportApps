@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "405081536369",
+    "firebase_url": "https://visitreportforhts.firebaseio.com",
+    "project_id": "visitreportforhts",
+    "storage_bucket": "visitreportforhts.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405081536369:android:4987c3bfa25209c5",
+        "android_client_info": {
+          "package_name": "com.example.folcotandiono.visitreporthts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "405081536369-1a7j6o7v7pb0nhmloinepjlqup6ff89p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzyD51_AdHY84xNgZ3vO-jG5nM-19jxoQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

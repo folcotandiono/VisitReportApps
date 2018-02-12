@@ -24,10 +24,10 @@
             android:text="Visit Report"></TextView>
 
         <EditText
-            android:id="@+id/loginEmailPhonenumber"
+            android:id="@+id/loginEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email/phonenumber" />
+            android:hint="Email" />
 
         <EditText
             android:id="@+id/loginPassword"
@@ -35,16 +35,6 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose your role : " />
-
-        <Spinner
-            android:id="@+id/loginRole"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/loginLogin"

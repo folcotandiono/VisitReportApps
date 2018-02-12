@@ -1,8 +1,10 @@
 package com.example.folcotandiono.visitreporthts;
 
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +13,15 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +36,9 @@ public class RegisterActivity extends AppCompatActivity {
     private Spinner registerRole;
     private Button registerRegister;
 
-    private DatabaseHelper databaseHelper;
+    private FirebaseAuth registerAuth;
+    private FirebaseAuth.AuthStateListener registerAuthListener;
+    private DatabaseReference registerDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +68,30 @@ public class RegisterActivity extends AppCompatActivity {
         registerRole.setAdapter(adapter);
 
         registerRegister = (Button) findViewById(R.id.registerRegister);
+
+
     }
 
     private void initObject() {
-        databaseHelper = new DatabaseHelper(RegisterActivity.this);
+        registerAuth = FirebaseAuth.getInstance();
+        registerAuthListener = new FirebaseAuth.AuthStateListener() {
+            public static final String TAG = "RegisterActivity";
+
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+
+        registerDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     private void initListener() {
@@ -77,6 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
         String name = registerName.getText().toString();
         String password = registerPassword.getText().toString();
         String rePassword = registerRePassword.getText().toString();
+        String role = registerRole.getSelectedItem().toString();
 
         if (email.isEmpty()) {
             Toast.makeText(RegisterActivity.this, "Email is empty", Toast.LENGTH_SHORT).show();
@@ -110,49 +144,52 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        if (registerRole.getSelectedItem().toString().equals("Sales")) {
-            Sales temp = databaseHelper.getSalesByEmail(email);
+        registerAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    public static final String TAG = "RegisterActivity";
 
-            if (temp.getEmail() != null && !temp.getEmail().isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Email already taken", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
-            temp = databaseHelper.getSalesByPhonenumber(phonenumber);
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            FirebaseAuthException e = (FirebaseAuthException )task.getException();
+                            Toast.makeText(RegisterActivity.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        else {
+                            Toast.makeText(RegisterActivity.this, "Registration complete",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
 
-            if (temp.getEmail() != null && !temp.getEmail().isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Phonenumber already taken", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPhonenumber(phonenumber);
+        user.setPassword(password);
 
-            Sales sales = new Sales();
-            sales.setName(name);
-            sales.setEmail(email);
-            sales.setPhonenumber(phonenumber);
-            sales.setPassword(password);
-            databaseHelper.insertSales(sales);
+        if (role.equals("Sales")) user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.sales));
+        else user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.salesManager));
+
+        registerDatabase.child("User").child(registerAuth.getCurrentUser().getUid()).setValue(user);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        registerAuth.addAuthStateListener(registerAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (registerAuthListener != null) {
+            registerAuth.removeAuthStateListener(registerAuthListener);
         }
-        else {
-            SalesManager temp = databaseHelper.getSalesManagerByEmail(email);
-
-            if (temp.getEmail() != null && !temp.getEmail().isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Email already taken", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            temp = databaseHelper.getSalesManagerByPhonenumber(phonenumber);
-
-            if (temp.getEmail() != null && !temp.getEmail().isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Phonenumber already taken", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            SalesManager salesManager = new SalesManager();
-            salesManager.setName(name);
-            salesManager.setEmail(email);
-            salesManager.setPhonenumber(phonenumber);
-            salesManager.setPassword(password);
-            databaseHelper.insertSalesManager(salesManager);
-        }
-        Toast.makeText(RegisterActivity.this, "Account created", Toast.LENGTH_SHORT).show();
     }
 }

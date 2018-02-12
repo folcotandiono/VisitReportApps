@@ -1,9 +1,11 @@
 package com.example.folcotandiono.visitreporthts;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -13,21 +15,25 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private TextView loginEmailPhonenumber;
+    private TextView loginEmail;
     private TextView loginPassword;
-    private Spinner loginRole;
     private Button loginLogin;
     private TextView loginRegister;
 
-    private DatabaseHelper databaseHelper;
-
-    public Sales sales;
-    public SalesManager salesManager;
+    private FirebaseAuth loginAuth;
+    private AuthStateListener loginAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +46,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        loginEmailPhonenumber = (TextView) findViewById(R.id.loginEmailPhonenumber);
+        loginEmail = (TextView) findViewById(R.id.loginEmail);
         loginPassword = (TextView) findViewById(R.id.loginPassword);
-        loginRole = (Spinner) findViewById(R.id.loginRole);
-
-        // https://developer.android.com/guide/topics/ui/controls/spinner.html
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.role, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        loginRole.setAdapter(adapter);
-
         loginLogin = (Button) findViewById(R.id.loginLogin);
         loginRegister = (TextView) findViewById(R.id.loginRegister);
     }
@@ -76,18 +71,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initObject() {
-        databaseHelper = new DatabaseHelper(LoginActivity.this);
+        loginAuth = FirebaseAuth.getInstance();
+
+        loginAuthListener = new AuthStateListener() {
+            public static final String TAG = "LoginActivity";
+
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
     }
 
     private void login() {
-        String emailPhonenumber = loginEmailPhonenumber.getText().toString();
+        String email = loginEmail.getText().toString();
         String password = loginPassword.getText().toString();
-        String role = loginRole.getSelectedItem().toString();
 
-        sales = new Sales();
-        salesManager = new SalesManager();
-
-        if(emailPhonenumber.isEmpty()) {
+        if(email.isEmpty()) {
             Toast.makeText(LoginActivity.this, "Email/phonenumber is empty", Toast.LENGTH_SHORT).show();
             return ;
         }
@@ -96,39 +104,49 @@ public class LoginActivity extends AppCompatActivity {
             return ;
         }
 
-        if (Patterns.EMAIL_ADDRESS.matcher(emailPhonenumber).matches()) {
-            if (role.equals("Sales")) sales = databaseHelper.getSales(emailPhonenumber, password, true);
-            else salesManager = databaseHelper.getSalesManager(emailPhonenumber, password, true);
-        }
-        else if (Patterns.PHONE.matcher(emailPhonenumber).matches()) {
-            if (role.equals("Sales")) sales = databaseHelper.getSales(emailPhonenumber, password, false);
-            else salesManager = databaseHelper.getSalesManager(emailPhonenumber, password, false);
-        }
-        else {
-            Toast.makeText(LoginActivity.this, "Email/phonenumber is not valid", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        loginAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    public static final String TAG = "LoginActivity";
 
-        if (role.equals("Sales")) {
-            if (sales.getEmail() != null && !sales.getEmail().isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Signing in", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(LoginActivity.this, "Email or password is wrong", Toast.LENGTH_SHORT).show();
-            }
-        }
-        else {
-            if (salesManager.getEmail() != null && !salesManager.getEmail().isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Signing in", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(LoginActivity.this, "Email or password is wrong", Toast.LENGTH_SHORT).show();
-            }
-        }
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
-        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-        startActivity(intent);
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithEmail:failed", task.getException());
+                            Toast.makeText(LoginActivity.this, "Email or password is wrong",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, "Signing in",
+                                    Toast.LENGTH_SHORT).show();
 
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                        }
+
+                        // ...
+                    }
+                });
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loginAuth.addAuthStateListener(loginAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (loginAuthListener != null) {
+            loginAuth.removeAuthStateListener(loginAuthListener);
+        }
     }
 
 }

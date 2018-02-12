@@ -4,20 +4,12 @@ package com.example.folcotandiono.visitreporthts;
  * Created by Folco Tandiono on 09/02/2018.
  */
 
-public class SalesManager {
-    long idSalesManager;
+public class User {
     String name, email, phonenumber, password;
+    int role;
 
-    public SalesManager() {
+    public User() {
 
-    }
-
-    public long getIdSalesManager() {
-        return idSalesManager;
-    }
-
-    public void setIdSalesManager(long idSalesManager) {
-        this.idSalesManager = idSalesManager;
     }
 
     public String getName() {
@@ -50,5 +42,13 @@ public class SalesManager {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
     }
 }
