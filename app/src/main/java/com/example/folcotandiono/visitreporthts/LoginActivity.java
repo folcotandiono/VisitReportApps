@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.regex.Matcher;
@@ -116,14 +117,15 @@ public class LoginActivity extends AppCompatActivity {
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(LoginActivity.this, "Email or password is wrong",
-                                    Toast.LENGTH_SHORT).show();
+                            FirebaseAuthException e = (FirebaseAuthException )task.getException();
+                            Toast.makeText(LoginActivity.this, "Failed Login: "+e.getMessage(), Toast.LENGTH_LONG).show();
                             return;
                         }
                         else {
                             Toast.makeText(LoginActivity.this, "Signing in",
                                     Toast.LENGTH_SHORT).show();
+
+                            finish();
 
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
@@ -149,4 +151,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loginEmail.setText("");
+        loginPassword.setText("");
+    }
 }

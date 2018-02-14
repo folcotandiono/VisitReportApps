@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/VisitReportHTS.iml" filepath="$PROJECT_DIR$/VisitReportHTS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VisitReportForHTS.iml" filepath="$PROJECT_DIR$/VisitReportForHTS.iml" />
+      <module fileurl="file://E:\Coding\Android\VisitReportForHTS\VisitReportHTS.iml" filepath="E:\Coding\Android\VisitReportForHTS\VisitReportHTS.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

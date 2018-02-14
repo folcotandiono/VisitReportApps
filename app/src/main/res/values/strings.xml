@@ -7,9 +7,12 @@
     </string-array>
     <string-array name="nav_item_home">
         <item>My Circles</item>
+        <item>Create Circle</item>
+        <item>Join Circle</item>
         <item>Visit Plan</item>
         <item>Customer</item>
         <item>Settings</item>
+        <item>Log Out</item>
     </string-array>
     <string name="open">Open</string>
     <string name="close">Close</string>

@@ -38,7 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth registerAuth;
     private FirebaseAuth.AuthStateListener registerAuthListener;
-    private DatabaseReference registerDatabase;
+    private FirebaseDatabase registerDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         };
 
-        registerDatabase = FirebaseDatabase.getInstance().getReference();
+        registerDatabase = FirebaseDatabase.getInstance();
     }
 
     private void initListener() {
@@ -105,12 +105,12 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void register() {
-        String email = registerEmail.getText().toString();
-        String phonenumber = registerPhonenumber.getText().toString();
-        String name = registerName.getText().toString();
-        String password = registerPassword.getText().toString();
+        final String email = registerEmail.getText().toString();
+        final String phonenumber = registerPhonenumber.getText().toString();
+        final String name = registerName.getText().toString();
+        final String password = registerPassword.getText().toString();
         String rePassword = registerRePassword.getText().toString();
-        String role = registerRole.getSelectedItem().toString();
+        final String role = registerRole.getSelectedItem().toString();
 
         if (email.isEmpty()) {
             Toast.makeText(RegisterActivity.this, "Email is empty", Toast.LENGTH_SHORT).show();
@@ -163,20 +163,21 @@ public class RegisterActivity extends AppCompatActivity {
                         else {
                             Toast.makeText(RegisterActivity.this, "Registration complete",
                                     Toast.LENGTH_LONG).show();
+
+                            User user = new User();
+                            user.setName(name);
+                            user.setEmail(email);
+                            user.setPhonenumber(phonenumber);
+                            user.setPassword(password);
+
+                            if (role.equals("Sales")) user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.sales));
+                            else user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.salesManager));
+
+                            registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).setValue(user);
+
                         }
                     }
                 });
-
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPhonenumber(phonenumber);
-        user.setPassword(password);
-
-        if (role.equals("Sales")) user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.sales));
-        else user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.salesManager));
-
-        registerDatabase.child("User").child(registerAuth.getCurrentUser().getUid()).setValue(user);
     }
 
     @Override
