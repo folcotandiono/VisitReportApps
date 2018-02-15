@@ -1,38 +1,40 @@
 package com.example.folcotandiono.visitreporthts;
 
+import java.util.ArrayList;
+
 /**
  * Created by Folco Tandiono on 09/02/2018.
  */
 
 public class Circle {
-    long idCircle;
-    String name;
-    long idSalesManager;
+    ArrayList<String> id;
+    String idUser;
+    String code;
 
     public Circle() {
     }
 
-    public long getIdCircle() {
-        return idCircle;
+    public ArrayList<String> getId() {
+        return id;
     }
 
-    public void setIdCircle(long idCircle) {
-        this.idCircle = idCircle;
+    public void setId(ArrayList<String> id) {
+        this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getIdUser() {
+        return idUser;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdUser(String idUser) {
+        this.idUser = idUser;
     }
 
-    public long getIdSalesManager() {
-        return idSalesManager;
+    public String getCode() {
+        return code;
     }
 
-    public void setIdSalesManager(long idSalesManager) {
-        this.idSalesManager = idSalesManager;
+    public void setCode(String code) {
+        this.code = code;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.folcotandiono.visitreporthts;
 
+import java.util.ArrayList;
+
 /**
  * Created by Folco Tandiono on 09/02/2018.
  */
@@ -8,6 +10,7 @@ public class User {
     String name, email, phonenumber, password;
     int role;
     double lat, lng;
+    ArrayList<String> circle;
 
     public User() {
 
@@ -67,5 +70,13 @@ public class User {
 
     public void setLng(double lng) {
         this.lng = lng;
+    }
+
+    public ArrayList<String> getCircle() {
+        return circle;
+    }
+
+    public void setCircle(ArrayList<String> circle) {
+        this.circle = circle;
     }
 }

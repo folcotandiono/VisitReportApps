@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -23,7 +24,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -60,13 +63,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.IOException;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout homeDrawerLayout;
     private NavigationView homeNavigationView;
     private ListView listView;
     private ActionBarDrawerToggle toggle;
     private Toolbar homeToolbar;
+    private Menu homeMenu;
+    private SubMenu homeSubMenu;
 
     private FirebaseAuth homeAuth;
     private FirebaseAuth.AuthStateListener homeAuthListener;
@@ -76,6 +81,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
+
+    private Boolean circleChosen;
+    private String circleChosenStr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,25 +98,18 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         initView();
         initObject();
+        initMyCircles();
+    }
 
-//        homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                User user = null;
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    user = snapshot.getValue(User.class);
-//                    Log.d("haha", user.getEmail());
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_checkin, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     private void initObject() {
+
+        circleChosen = false;
 
         homeAuth = FirebaseAuth.getInstance();
         homeAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -145,34 +146,69 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     temp = location;
                 }
                 if (temp != null) {
-//                    final User[] user = {new User()};
-//                    homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                            user[0] = dataSnapshot.getValue(User.class);
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(DatabaseError databaseError) {
-//
-//                        }
-//                    });
-
-//                    user[0].setLat(temp.getLatitude());
-//                    user[0].setLng(temp.getLongitude());
-                    Log.d("haha", homeAuth.getCurrentUser().getUid());
-//                    homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).setValue(user[0]);
+                    mMap.clear();
                     homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).child("lat").setValue(temp.getLatitude());
                     homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).child("lng").setValue(temp.getLongitude());
 
-                    mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(temp.getLatitude(), temp.getLongitude()))
-                            .title("I am Folco"));
+                    if (circleChosen) {
+                        homeDatabase.getReference("Circle").child(circleChosenStr).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                    homeDatabase.getReference("User").child((String) snapshot.getValue()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            double lat = (double) dataSnapshot.child("lat").getValue();
+                                            double lng = (double) dataSnapshot.child("lng").getValue();
+                                            mMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(lat, lng))
+                                                    .title((String) dataSnapshot.child("name").getValue()));
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
                 }
             }
-
-            ;
         };
+
+        homeNavigationView.setNavigationItemSelectedListener(this);
+
+        homeMenu = homeNavigationView.getMenu();
+        homeSubMenu = homeMenu.addSubMenu("My Circles");
+    }
+
+    private void initMyCircles() {
+        homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid())
+                .child("circle").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                homeSubMenu.clear();
+                int cnt = Menu.FIRST;
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    homeSubMenu.add(0, cnt++, Menu.NONE, (CharSequence) snapshot.getValue());
+                }
+                homeNavigationView.setNavigationItemSelectedListener(HomeActivity.this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void getLastLocation() {
@@ -201,7 +237,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
+        mLocationRequest.setInterval(5000);
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
@@ -215,6 +251,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         homeDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        homeNavigationView = (NavigationView) findViewById(R.id.homeNavigationView);
     }
 
     @Override
@@ -243,7 +281,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         startLocationUpdates();
-
     }
 
     private void startLocationUpdates() {
@@ -276,5 +313,54 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+    }
+
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
+        if (item.getItemId() == R.id.drawerMenuCreateCycle) {
+//            finish();
+            Intent intent = new Intent(HomeActivity.this, CreateCircleActivity.class);
+            startActivity(intent);
+        }
+        else if (item.getItemId() == R.id.drawerMenuLogOut) {
+            finish();
+            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
+        else if (item.getItemId() == R.id.drawerMenuJoinCycle) {
+            Intent intent = new Intent(HomeActivity.this, JoinCircleActivity.class);
+            startActivity(intent);
+        }
+        else {
+            homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid())
+                    .child("circle").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    int cnt = 0;
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (item.getItemId() == homeSubMenu.getItem(cnt++).getItemId()) {
+                            circleChosen = true;
+                            circleChosenStr = (String) homeSubMenu.getItem(cnt - 1).getTitle();
+                            getSupportActionBar().setTitle(homeSubMenu.getItem(cnt - 1).getTitle());
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+        homeDrawerLayout.closeDrawers();
+
+        return false;
     }
 }
