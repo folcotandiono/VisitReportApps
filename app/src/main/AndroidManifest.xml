@@ -37,7 +37,11 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".CreateCircleActivity" />
-        <activity android:name=".JoinCircleActivity"></activity>
+        <activity android:name=".JoinCircleActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".CircleOptionsActivity" />
+        <activity android:name=".CircleDetailsActivity" />
+        <activity android:name=".ChangePasswordActivity"></activity>
     </application>
 
 </manifest>

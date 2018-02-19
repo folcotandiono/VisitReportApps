@@ -98,6 +98,10 @@ public class JoinCircleActivity extends AppCompatActivity {
                                                                 joinCircleDatabase.getReference("User").child(joinCircleAuth.getCurrentUser().getUid()).child("circle").setValue(userCircle[0]);
                                                                 joinCircleDatabase.getReference("Circle").child(circleName[0]).child("id").setValue(circleUser[0]);
 
+                                                                if (circleUser[0].size() == 1) {
+                                                                    joinCircleDatabase.getReference("Circle").child(circleName[0]).child("idUser").setValue(joinCircleAuth.getCurrentUser().getUid());
+                                                                }
+
                                                                 Toast.makeText(JoinCircleActivity.this, "Circle is joined", Toast.LENGTH_SHORT).show();
                                                             }
 
@@ -168,6 +172,7 @@ public class JoinCircleActivity extends AppCompatActivity {
         setSupportActionBar(joinCircleToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Join Circle");
 
         joinCircleCode = (EditText) findViewById(R.id.joinCircleCode);
 
