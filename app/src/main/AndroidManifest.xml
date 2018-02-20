@@ -29,8 +29,12 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".HomeActivity" />
 
+        <!-- <meta-data -->
+        <!-- android:name="com.google.android.maps.v2.API_KEY" -->
+        <!-- android:value="AIzaSyCNOFWS57u2Q0TeIlUOLHamH-MBk8zW9GU" /> -->
+
         <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
+            android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCNOFWS57u2Q0TeIlUOLHamH-MBk8zW9GU" />
         <meta-data
             android:name="com.google.android.gms.version"
@@ -41,7 +45,9 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".CircleOptionsActivity" />
         <activity android:name=".CircleDetailsActivity" />
-        <activity android:name=".ChangePasswordActivity"></activity>
+        <activity android:name=".ChangePasswordActivity" />
+        <activity android:name=".VisitPlanActivity" />
+        <activity android:name=".CheckInActivity"></activity>
     </application>
 
 </manifest>

@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,11 +36,18 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth loginAuth;
     private AuthStateListener loginAuthListener;
+    private FirebaseDatabase loginDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        } catch(Exception e) {
+
+        }
 
         initView();
         initListener();
@@ -90,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                 // ...
             }
         };
+        loginDatabase = FirebaseDatabase.getInstance();
     }
 
     private void login() {

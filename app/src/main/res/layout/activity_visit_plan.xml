@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.folcotandiono.visitreporthts.VisitPlanActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/visitPlanToolbar"
+        app:titleTextColor="@android:color/white"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/visitPlanChooseDate"
+            android:text="Choose Date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/visitPlanDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/visitPlanAddPlace"
+            android:text="Add Place"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/visitPlanRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

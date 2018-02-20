@@ -3,6 +3,7 @@ package com.example.folcotandiono.visitreporthts;
 import android.*;
 import android.Manifest;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -34,6 +35,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -49,6 +53,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -61,6 +66,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -260,6 +268,14 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (toggle.onOptionsItemSelected(item)) {
             return true;
         }
+        if (item.getItemId() == R.id.menu_checkin) {
+            if (circleChosen) {
+
+            } else {
+                Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -322,7 +338,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            ActivityCompat.requestPermissions(HomeActivity.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
             return;
         }
 
@@ -339,21 +355,25 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 //            finish();
             Intent intent = new Intent(HomeActivity.this, CreateCircleActivity.class);
             startActivity(intent);
-        }
-        else if (item.getItemId() == R.id.drawerMenuLogOut) {
+        } else if (item.getItemId() == R.id.drawerMenuVisitPlan) {
+            if (circleChosen) {
+                Intent intent = new Intent(HomeActivity.this, VisitPlanActivity.class);
+                intent.putExtra("circleName", circleChosenStr);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
+            }
+        } else if (item.getItemId() == R.id.drawerMenuLogOut) {
             finish();
             Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
             startActivity(intent);
-        }
-        else if (item.getItemId() == R.id.drawerMenuJoinCycle) {
+        } else if (item.getItemId() == R.id.drawerMenuJoinCycle) {
             Intent intent = new Intent(HomeActivity.this, JoinCircleActivity.class);
             startActivity(intent);
-        }
-        else if (item.getItemId() == R.id.drawerMenuSettings) {
+        } else if (item.getItemId() == R.id.drawerMenuSettings) {
             Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
             startActivity(intent);
-        }
-        else {
+        } else {
             homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid())
                     .child("circle").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

@@ -1,6 +1,7 @@
 package com.example.folcotandiono.visitreporthts;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,66 +23,63 @@ public class CircleDetailsAdapter extends RecyclerView.Adapter<CircleDetailsAdap
     private static String[] name;
     private Boolean admin;
     private static String[] id;
-    public static String circleName;
+    private static String circleName;
+    private static String idUser;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
+        public TextView circleDetailsPosition;
+        public TextView circleDetailsId;
         public TextView circleDetailsName;
         public Button circleDetailsKick;
+
         public ViewHolder(View v) {
             super(v);
+            circleDetailsPosition = v.findViewById(R.id.cardCircleDetailsPosition);
+            circleDetailsId = v.findViewById(R.id.cardCircleDetailsId);
             circleDetailsName = v.findViewById(R.id.cardCircleDetailsName);
             circleDetailsKick = v.findViewById(R.id.cardCircleDetailsKick);
 
             circleDetailsKick.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d("position", circleDetailsPosition.getText().toString());
                     final FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-                    String code = new String();
-                    for (int i = 0; i < name.length; i++) {
-                        if (name[i].equals(circleDetailsName.getText().toString())) {
-                            code = id[i];
+                    firebaseDatabase.getReference("Circle").child(circleName).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            ArrayList<String> id = new ArrayList<>();
+                            if (dataSnapshot.getValue() != null) {
+                                id = (ArrayList<String>) dataSnapshot.getValue();
+                                int ind = Integer.valueOf(circleDetailsPosition.getText().toString());
+                                id.remove(ind);
+
+                                firebaseDatabase.getReference("Circle").child(circleName).child("id").setValue(id);
+                            }
                         }
-                    }
-                    final String finalCode = code;
-                    firebaseDatabase.getReference("User").child(code).child("circle").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                    firebaseDatabase.getReference("User").child(circleDetailsId.getText().toString()).child("circle").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             ArrayList<String> circle = new ArrayList<>();
                             if (dataSnapshot.getValue() != null) {
                                 circle = (ArrayList<String>) dataSnapshot.getValue();
+                                int ind = 0;
                                 for (int i = 0; i < circle.size(); i++) {
-                                    if (circle.get(i).equals(circleName)) {
-                                        circle.remove(i);
-                                        final ArrayList<String> finalCircle = circle;
-                                        firebaseDatabase.getReference("Circle").child(circleName).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                ArrayList<String> id = new ArrayList<>();
-                                                if (dataSnapshot.getValue() != null) {
-                                                    id = (ArrayList<String>) dataSnapshot.getValue();
-                                                    for (int i = 0; i < id.size(); i++) {
-                                                        if (id.get(i).equals(finalCode)) {
-                                                            id.remove(i);
-                                                            firebaseDatabase.getReference("User").child(finalCode).child("circle").setValue(finalCircle);
-                                                            firebaseDatabase.getReference("Circle").child(circleName).child("id").setValue(id);
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-                                        break;
+                                    if (circleName.equals(circle.get(i))) {
+                                        ind = i;
                                     }
                                 }
+                                circle.remove(ind);
+                                firebaseDatabase.getReference("User").child(circleDetailsId.getText().toString()).child("circle").setValue(circle);
                             }
                         }
 
@@ -93,20 +91,22 @@ public class CircleDetailsAdapter extends RecyclerView.Adapter<CircleDetailsAdap
                 }
             });
         }
+
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public CircleDetailsAdapter(String[] id, String[] name, Boolean admin, String circleName) {
+    public CircleDetailsAdapter(String[] id, String[] name, Boolean admin, String circleName, String idUser) {
         this.id = id;
         this.name = name;
         this.admin = admin;
         this.circleName = circleName;
+        this.idUser = idUser;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
     public CircleDetailsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+                                                              int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_circle_details, parent, false);
@@ -122,9 +122,11 @@ public class CircleDetailsAdapter extends RecyclerView.Adapter<CircleDetailsAdap
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.circleDetailsName.setText(name[position]);
-        if (!admin) {
+        if (!admin || id[position].equals(idUser)) {
             holder.circleDetailsKick.setVisibility(View.GONE);
         }
+        holder.circleDetailsId.setText(id[position]);
+        holder.circleDetailsPosition.setText(String.valueOf(position));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

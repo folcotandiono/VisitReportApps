@@ -133,47 +133,38 @@ public class CircleDetailsActivity extends AppCompatActivity {
         circleDetailsLayoutManager = new LinearLayoutManager(this);
         circleDetailsRecyclerView.setLayoutManager(circleDetailsLayoutManager);
 
-        circleDetailsDatabase.getReference("Circle").child(getIntent().getStringExtra("circleName")).child("idUser").addValueEventListener(new ValueEventListener() {
+        circleDetailsDatabase.getReference("Circle").child(getIntent().getStringExtra("circleName")).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                final String idUser = dataSnapshot.child("idUser").getValue().toString();
                 admin = false;
-                if (dataSnapshot.getValue().equals(circleDetailsAuth.getCurrentUser().getUid())) admin = true;
+                if (idUser.equals(circleDetailsAuth.getCurrentUser().getUid())) admin = true;
                 final Boolean finalAdmin = admin;
-                circleDetailsDatabase.getReference("Circle").child(getIntent().getStringExtra("circleName")).child("id").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue() == null) {
-                            onBackPressed();
-                            return;
-                        }
-                        final String[] id = new String[(int) dataSnapshot.getChildrenCount()];
-                        final String[] name = new String[(int) dataSnapshot.getChildrenCount()];
-                        int cnt = 0;
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            id[cnt++] = (String) snapshot.getValue();
-                            final int finalCnt = cnt;
-                            circleDetailsDatabase.getReference("User").child(id[cnt - 1]).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    name[finalCnt - 1] = dataSnapshot.getValue().toString();
-                                    circleDetailsAdapter = new CircleDetailsAdapter(id, name, finalAdmin, circleDetailsCircleName.getText().toString());
-                                    circleDetailsRecyclerView.setAdapter(circleDetailsAdapter);
-                                }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
+                if (dataSnapshot.child("id").getValue() == null) {
+                    onBackPressed();
+                    return;
+                }
+                final String[] id = new String[(int) dataSnapshot.child("id").getChildrenCount()];
+                final String[] name = new String[(int) dataSnapshot.child("id").getChildrenCount()];
+                int cnt = 0;
+                for (DataSnapshot snapshot : dataSnapshot.child("id").getChildren()) {
+                    id[cnt++] = (String) snapshot.getValue();
+                    final int finalCnt = cnt;
+                    circleDetailsDatabase.getReference("User").child(id[cnt - 1]).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            name[finalCnt - 1] = dataSnapshot.getValue().toString();
+                            circleDetailsAdapter = new CircleDetailsAdapter(id, name, finalAdmin, circleDetailsCircleName.getText().toString(), idUser);
+                            circleDetailsRecyclerView.setAdapter(circleDetailsAdapter);
                         }
 
-                    }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                        }
+                    });
+                }
             }
 
             @Override
@@ -187,13 +178,6 @@ public class CircleDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Circle Details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_circle_details, menu);
-        return true;
     }
 
     private void initView() {

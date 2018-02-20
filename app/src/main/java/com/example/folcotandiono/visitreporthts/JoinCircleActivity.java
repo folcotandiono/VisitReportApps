@@ -55,21 +55,25 @@ public class JoinCircleActivity extends AppCompatActivity {
                 if (code.isEmpty()) {
                     Toast.makeText(JoinCircleActivity.this, "Circle code is empty", Toast.LENGTH_SHORT).show();
                 } else {
-
                     joinCircleDatabase.getReference("Circle").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Boolean adaCircle = false;
                             final String[] circleName = new String[1];
+
                             for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                                 if (dataSnapshot1.child("code").getValue().equals(code)) { // cek apakah terdapat circle dengan code ini
                                     adaCircle = true;
                                     circleName[0] = dataSnapshot1.getKey();
-                                    joinCircleDatabase.getReference("User").child(joinCircleAuth.getCurrentUser().getUid()).child("circle").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    ArrayList<String> circleUser = new ArrayList<String>();
+                                    if (dataSnapshot.child(circleName[0]).child("id").getValue() != null) circleUser = (ArrayList<String>) dataSnapshot.child(circleName[0]).child("id").getValue();
+
+                                    final ArrayList<String> finalCircleUser = circleUser;
+                                    joinCircleDatabase.getReference("User").child(joinCircleAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             Boolean ada = false; // cek apakah user telah bergabung ke cycle ini
-                                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                            for (DataSnapshot snapshot : dataSnapshot.child("circle").getChildren()) {
                                                 if (snapshot.getValue().equals(circleName[0])) {
                                                     ada = true;
                                                     break;
@@ -78,45 +82,22 @@ public class JoinCircleActivity extends AppCompatActivity {
                                             if (!ada) {
                                                 // dapatkan list user dari circle dan list circle dari user untuk ditambah nilainya
                                                 final ArrayList<String>[] userCircle = new ArrayList[]{new ArrayList<String>()};
-                                                final ArrayList<String>[] circleUser = new ArrayList[]{new ArrayList<String>()};
 
-                                                joinCircleDatabase.getReference("User").child(joinCircleAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        if (dataSnapshot.child("circle").getValue() != null) {
-                                                            userCircle[0] = (ArrayList<String>) dataSnapshot.child("circle").getValue();
-                                                        }
-                                                        userCircle[0].add(circleName[0]);
-                                                        joinCircleDatabase.getReference("Circle").child(circleName[0]).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                            @Override
-                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                if (dataSnapshot.child("id").getValue() != null) {
-                                                                    circleUser[0] = (ArrayList<String>) dataSnapshot.child("id").getValue();
-                                                                }
-                                                                circleUser[0].add(joinCircleAuth.getCurrentUser().getUid());
+                                                if (dataSnapshot.child("circle").getValue() != null) {
+                                                    userCircle[0] = (ArrayList<String>) dataSnapshot.child("circle").getValue();
+                                                }
+                                                userCircle[0].add(circleName[0]);
+                                                finalCircleUser.add(joinCircleAuth.getCurrentUser().getUid());
 
-                                                                joinCircleDatabase.getReference("User").child(joinCircleAuth.getCurrentUser().getUid()).child("circle").setValue(userCircle[0]);
-                                                                joinCircleDatabase.getReference("Circle").child(circleName[0]).child("id").setValue(circleUser[0]);
+                                                joinCircleDatabase.getReference("User").child(joinCircleAuth.getCurrentUser().getUid()).child("circle").setValue(userCircle[0]);
+                                                joinCircleDatabase.getReference("Circle").child(circleName[0]).child("id").setValue(finalCircleUser);
 
-                                                                if (circleUser[0].size() == 1) {
-                                                                    joinCircleDatabase.getReference("Circle").child(circleName[0]).child("idUser").setValue(joinCircleAuth.getCurrentUser().getUid());
-                                                                }
+                                                if (finalCircleUser.size() == 1) {
+                                                    joinCircleDatabase.getReference("Circle").child(circleName[0]).child("idUser").setValue(joinCircleAuth.getCurrentUser().getUid());
+                                                }
 
-                                                                Toast.makeText(JoinCircleActivity.this, "Circle is joined", Toast.LENGTH_SHORT).show();
-                                                            }
+                                                Toast.makeText(JoinCircleActivity.this, "Circle is joined", Toast.LENGTH_SHORT).show();
 
-                                                            @Override
-                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                            }
-                                                        });
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
 
                                             } else {
                                                 Toast.makeText(JoinCircleActivity.this, "Circle already joined", Toast.LENGTH_SHORT).show();

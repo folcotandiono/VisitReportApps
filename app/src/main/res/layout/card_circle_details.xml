@@ -7,6 +7,18 @@
     card_view:cardCornerRadius="4dp"
     xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
+    <TextView
+        android:id="@+id/cardCircleDetailsPosition"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/cardCircleDetailsId"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <LinearLayout
         android:layout_margin="8dp"
         android:layout_width="match_parent"
