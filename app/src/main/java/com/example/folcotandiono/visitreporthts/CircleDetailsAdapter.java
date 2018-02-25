@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,6 +49,7 @@ public class CircleDetailsAdapter extends RecyclerView.Adapter<CircleDetailsAdap
                 public void onClick(View v) {
                     Log.d("position", circleDetailsPosition.getText().toString());
                     final FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                    Toast.makeText(v.getContext(), "Deleted", Toast.LENGTH_SHORT).show();
                     firebaseDatabase.getReference("Circle").child(circleName).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

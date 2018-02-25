@@ -2,5 +2,5 @@
 <resources>
     <integer name="sales">0</integer>
     <integer name="salesManager">1</integer>
-    <integer name="radius">1000</integer>
+    <integer name="radius">200</integer>
 </resources>

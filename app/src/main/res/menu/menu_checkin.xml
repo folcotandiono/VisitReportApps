@@ -4,7 +4,10 @@
 
     <item android:id="@+id/menu_checkin"
         android:title="Check In"
-        app:showAsAction="ifRoom"
+        />
+
+    <item android:id="@+id/menu_checkout"
+        android:title="Check Out"
         />
 
 </menu>

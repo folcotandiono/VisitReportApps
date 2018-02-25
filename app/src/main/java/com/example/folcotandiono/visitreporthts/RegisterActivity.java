@@ -174,6 +174,9 @@ public class RegisterActivity extends AppCompatActivity {
                             else user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.salesManager));
 
                             registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).setValue(user);
+                            registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("status").setValue(true);
+                            registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("circle").setValue("");
+                            registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("date").setValue("");
 
                         }
                     }

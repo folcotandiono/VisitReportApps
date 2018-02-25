@@ -11,6 +11,8 @@ public class User {
     int role;
     double lat, lng;
     ArrayList<String> circle;
+    Boolean checkInStatus;
+    String checkInCircleName, checkInDate;
 
     public User() {
 
@@ -78,5 +80,29 @@ public class User {
 
     public void setCircle(ArrayList<String> circle) {
         this.circle = circle;
+    }
+
+    public Boolean getCheckInStatus() {
+        return checkInStatus;
+    }
+
+    public void setCheckInStatus(Boolean checkInStatus) {
+        this.checkInStatus = checkInStatus;
+    }
+
+    public String getCheckInCircleName() {
+        return checkInCircleName;
+    }
+
+    public void setCheckInCircleName(String checkInCircleName) {
+        this.checkInCircleName = checkInCircleName;
+    }
+
+    public String getCheckInDate() {
+        return checkInDate;
+    }
+
+    public void setCheckInDate(String checkInDate) {
+        this.checkInDate = checkInDate;
     }
 }

@@ -54,7 +54,8 @@ public class VisitPlanActivity extends AppCompatActivity {
     private ArrayList<String> placeName = new ArrayList<String>();
     private ArrayList<String> address = new ArrayList<String>();
     private ArrayList<LatLng> latlng = new ArrayList<LatLng>();
-    private ArrayList<Boolean> statusCheckIn = new ArrayList<Boolean>();
+    private ArrayList<String> checkIn = new ArrayList<String>();
+    private ArrayList<String> checkOut = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,11 +100,17 @@ public class VisitPlanActivity extends AppCompatActivity {
                                 if (dataSnapshot.child("latlng").getValue() != null) latlng = (ArrayList<LatLng>) dataSnapshot.child("latlng").getValue();
                                 else latlng = new ArrayList<LatLng>();
 
-                                if (dataSnapshot.child("statusCheckIn").getValue() != null) statusCheckIn = (ArrayList<Boolean>) dataSnapshot.child("statusCheckIn").getValue();
-                                else statusCheckIn = new ArrayList<Boolean>();
+                                if (dataSnapshot.child("checkIn").getValue() != null) checkIn = (ArrayList<String>) dataSnapshot.child("checkIn").getValue();
+                                else checkIn = new ArrayList<String>();
 
-                                visitPlanAdapter = new VisitPlanAdapter(placeName, address, latlng, sdf.format(visitPlanCalendar.getTime()), circleName, statusCheckIn);
-                                visitPlanRecyclerView.setAdapter(visitPlanAdapter);
+                                if (dataSnapshot.child("checkOut").getValue() != null) checkOut = (ArrayList<String>) dataSnapshot.child("checkOut").getValue();
+                                else checkOut = new ArrayList<String>();
+
+                                if (address.size() == placeName.size() && placeName.size() == latlng.size() && latlng.size() == checkIn.size() && checkIn.size() == checkOut.size()) {
+                                    visitPlanAdapter = new VisitPlanAdapter(placeName, address, latlng, sdf.format(visitPlanCalendar.getTime()), circleName, checkIn, checkOut);
+                                    visitPlanRecyclerView.setAdapter(visitPlanAdapter);
+                                }
+
                             }
 
                             @Override
@@ -148,13 +155,14 @@ public class VisitPlanActivity extends AppCompatActivity {
                 address.add(addresses.get(0));
 
                 latlng.add(place.getLatLng());
-
-                statusCheckIn.add(false);
+                checkIn.add("");
+                checkOut.add("");
 
                 visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).child("placeName").setValue(placeName);
                 visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).child("address").setValue(address);
                 visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).child("latlng").setValue(latlng);
-                visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).child("statusCheckIn").setValue(statusCheckIn);
+                visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).child("checkIn").setValue(checkIn);
+                visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).child("checkOut").setValue(checkOut);
 
                 Toast.makeText(this, "Place is added", Toast.LENGTH_LONG).show();
             }

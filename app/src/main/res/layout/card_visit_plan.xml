@@ -30,6 +30,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:id="@+id/cardVisitPlanStatusCheckOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <Button
             android:id="@+id/cardVisitPlanDelete"
             android:layout_width="match_parent"

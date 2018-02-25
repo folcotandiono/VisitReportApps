@@ -270,7 +270,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         if (item.getItemId() == R.id.menu_checkin) {
             if (circleChosen) {
-
+                Intent intent = new Intent(HomeActivity.this, CheckInActivity.class);
+                intent.putExtra("circleName", circleChosenStr);
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
             }
@@ -297,6 +299,36 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         startLocationUpdates();
+
+        if (circleChosen) {
+            homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).child("circle").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    ArrayList<String> circle = new ArrayList<>();
+                    if (dataSnapshot.getValue() != null) circle = (ArrayList<String>) dataSnapshot.getValue();
+
+                    Boolean ada = false;
+
+                    for (String circleStr : circle) {
+                        if (circleStr.equals(circleChosenStr)) {
+                            ada = true;
+                            break;
+                        }
+                    }
+
+                    if (!ada) {
+                        circleChosen = false;
+                        circleChosenStr = "";
+                        getSupportActionBar().setTitle("VisitReportForHTS");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     private void startLocationUpdates() {
