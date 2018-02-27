@@ -1,6 +1,7 @@
 package com.example.folcotandiono.visitreporthts;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ public class CircleDetailsActivity extends AppCompatActivity {
     private RecyclerView.Adapter circleDetailsAdapter;
     private RecyclerView.LayoutManager circleDetailsLayoutManager;
     private Button circleDetailsButton;
+    private Parcelable recyclerViewState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,8 +157,14 @@ public class CircleDetailsActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             name[finalCnt - 1] = dataSnapshot.getValue().toString();
+
+                            recyclerViewState = circleDetailsRecyclerView.getLayoutManager().onSaveInstanceState();
+
                             circleDetailsAdapter = new CircleDetailsAdapter(id, name, finalAdmin, circleDetailsCircleName.getText().toString(), idUser);
                             circleDetailsRecyclerView.setAdapter(circleDetailsAdapter);
+
+                            circleDetailsRecyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
                         }
 
                         @Override

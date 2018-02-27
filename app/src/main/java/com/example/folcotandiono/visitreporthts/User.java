@@ -7,8 +7,7 @@ import java.util.ArrayList;
  */
 
 public class User {
-    String name, email, phonenumber, password;
-    int role;
+    String name, email, phonenumber, password, address;
     double lat, lng;
     ArrayList<String> circle;
     Boolean checkInStatus;
@@ -16,6 +15,14 @@ public class User {
 
     public User() {
 
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getName() {
@@ -48,14 +55,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public int getRole() {
-        return role;
-    }
-
-    public void setRole(int role) {
-        this.role = role;
     }
 
     public double getLat() {

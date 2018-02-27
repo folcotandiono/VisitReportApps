@@ -2,6 +2,7 @@ package com.example.folcotandiono.visitreporthts;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,6 +49,7 @@ public class VisitPlanActivity extends AppCompatActivity {
     private RecyclerView.Adapter visitPlanAdapter;
     private RecyclerView.LayoutManager visitPlanLayoutManager;
     private PlacePicker.IntentBuilder visitPlanPlacePickerIntentBuilder;
+    private Parcelable recyclerViewState;
 
     int PLACE_PICKER_REQUEST = 1;
 
@@ -56,6 +58,8 @@ public class VisitPlanActivity extends AppCompatActivity {
     private ArrayList<LatLng> latlng = new ArrayList<LatLng>();
     private ArrayList<String> checkIn = new ArrayList<String>();
     private ArrayList<String> checkOut = new ArrayList<String>();
+
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,27 +92,61 @@ public class VisitPlanActivity extends AppCompatActivity {
                         final SimpleDateFormat sdf = new SimpleDateFormat(formatTanggal);
                         visitPlanDate.setText(sdf.format(visitPlanCalendar.getTime()));
 
-                        visitPlanDatabase.getReference("VisitPlan").child(visitPlanAuth.getCurrentUser().getUid()).child(circleName).child(visitPlanDate.getText().toString()).addValueEventListener(new ValueEventListener() {
+                        visitPlanDatabase.getReference("VisitPlan").child(uid).child(circleName).child(visitPlanDate.getText().toString()).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child("placeName").getValue() != null) placeName = (ArrayList<String>) dataSnapshot.child("placeName").getValue();
-                                else placeName = new ArrayList<String>();
-
-                                if (dataSnapshot.child("address").getValue() != null) address = (ArrayList<String>) dataSnapshot.child("address").getValue();
+                                if (dataSnapshot.child("address").getValue() != null) {
+//                    address = new ArrayList<String>();
+//                    for (DataSnapshot snapshot : dataSnapshot.child("address").getChildren()) {
+//                        address.add((String) snapshot.getValue());
+//                    }
+                                    address = (ArrayList<String>) dataSnapshot.child("address").getValue();
+                                }
                                 else address = new ArrayList<String>();
 
-                                if (dataSnapshot.child("latlng").getValue() != null) latlng = (ArrayList<LatLng>) dataSnapshot.child("latlng").getValue();
+                                if (dataSnapshot.child("placeName").getValue() != null) {
+//                    placeName = new ArrayList<String>();
+//                    for (DataSnapshot snapshot : dataSnapshot.child("placeName").getChildren()) {
+//                        placeName.add((String) snapshot.getValue());
+//                    }
+                                    placeName = (ArrayList<String>) dataSnapshot.child("placeName").getValue();
+                                }
+                                else placeName = new ArrayList<String>();
+
+                                if (dataSnapshot.child("latlng").getValue() != null) {
+                                    latlng = new ArrayList<LatLng>();
+                                    for (DataSnapshot snapshot : dataSnapshot.child("latlng").getChildren()) {
+                                        latlng.add(new LatLng((double) snapshot.child("latitude").getValue(), (double) snapshot.child("longitude").getValue()));
+                                    }
+                                }
                                 else latlng = new ArrayList<LatLng>();
 
-                                if (dataSnapshot.child("checkIn").getValue() != null) checkIn = (ArrayList<String>) dataSnapshot.child("checkIn").getValue();
+                                if (dataSnapshot.child("checkIn").getValue() != null) {
+//                    checkIn = new ArrayList<String>();
+//                    for (DataSnapshot snapshot : dataSnapshot.child("checkIn").getChildren()) {
+//                        checkIn.add((String) snapshot.getValue());
+//                    }
+                                    checkIn = (ArrayList<String>) dataSnapshot.child("checkIn").getValue();
+                                }
                                 else checkIn = new ArrayList<String>();
 
-                                if (dataSnapshot.child("checkOut").getValue() != null) checkOut = (ArrayList<String>) dataSnapshot.child("checkOut").getValue();
+                                if (dataSnapshot.child("checkOut").getValue() != null) {
+//                    checkOut = new ArrayList<String>();
+//                    for (DataSnapshot snapshot : dataSnapshot.child("checkOut").getChildren()) {
+//                        checkOut.add((String) snapshot.getValue());
+//                    }
+                                    checkOut = (ArrayList<String>) dataSnapshot.child("checkOut").getValue();
+                                }
                                 else checkOut = new ArrayList<String>();
 
                                 if (address.size() == placeName.size() && placeName.size() == latlng.size() && latlng.size() == checkIn.size() && checkIn.size() == checkOut.size()) {
-                                    visitPlanAdapter = new VisitPlanAdapter(placeName, address, latlng, sdf.format(visitPlanCalendar.getTime()), circleName, checkIn, checkOut);
+                                    recyclerViewState = visitPlanRecyclerView.getLayoutManager().onSaveInstanceState();
+
+                                    visitPlanAdapter = new VisitPlanAdapter(placeName, address, latlng, sdf.format(visitPlanCalendar.getTime()), circleName, checkIn, checkOut, uid);
                                     visitPlanRecyclerView.setAdapter(visitPlanAdapter);
+
+                                    visitPlanRecyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
                                 }
 
                             }
@@ -203,6 +241,12 @@ public class VisitPlanActivity extends AppCompatActivity {
         visitPlanPlacePickerIntentBuilder = new PlacePicker.IntentBuilder();
 
         circleName = getIntent().getStringExtra("circleName").toString();
+
+        uid = getIntent().getStringExtra("uid").toString();
+
+        if (!uid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            visitPlanAddPlace.setVisibility(View.GONE);
+        }
     }
 
     private void initView() {

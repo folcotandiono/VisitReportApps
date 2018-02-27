@@ -19,6 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".FetchAddressIntentService"
+            android:exported="false"/>
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,6 +51,7 @@
         <activity android:name=".ChangePasswordActivity" />
         <activity android:name=".VisitPlanActivity" />
         <activity android:name=".CheckInActivity"></activity>
+        <activity android:name=".CheckOutActivity"></activity>
     </application>
 
 </manifest>

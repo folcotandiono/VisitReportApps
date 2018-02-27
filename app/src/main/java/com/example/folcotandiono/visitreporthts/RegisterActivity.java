@@ -33,7 +33,6 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView registerName;
     private TextView registerPassword;
     private TextView registerRePassword;
-    private Spinner registerRole;
     private Button registerRegister;
 
     private FirebaseAuth registerAuth;
@@ -56,16 +55,6 @@ public class RegisterActivity extends AppCompatActivity {
         registerName = (TextView) findViewById(R.id.registerName);
         registerPassword = (TextView) findViewById(R.id.registerPassword);
         registerRePassword = (TextView) findViewById(R.id.registerRePassword);
-        registerRole = (Spinner) findViewById(R.id.registerRole);
-
-        // https://developer.android.com/guide/topics/ui/controls/spinner.html
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.role, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        registerRole.setAdapter(adapter);
 
         registerRegister = (Button) findViewById(R.id.registerRegister);
 
@@ -110,7 +99,6 @@ public class RegisterActivity extends AppCompatActivity {
         final String name = registerName.getText().toString();
         final String password = registerPassword.getText().toString();
         String rePassword = registerRePassword.getText().toString();
-        final String role = registerRole.getSelectedItem().toString();
 
         if (email.isEmpty()) {
             Toast.makeText(RegisterActivity.this, "Email is empty", Toast.LENGTH_SHORT).show();
@@ -169,14 +157,13 @@ public class RegisterActivity extends AppCompatActivity {
                             user.setEmail(email);
                             user.setPhonenumber(phonenumber);
                             user.setPassword(password);
-
-                            if (role.equals("Sales")) user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.sales));
-                            else user.setRole(RegisterActivity.this.getResources().getInteger(R.integer.salesManager));
+                            user.setAddress("");
 
                             registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).setValue(user);
                             registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("status").setValue(true);
                             registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("circle").setValue("");
                             registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("date").setValue("");
+                            registerDatabase.getReference("User").child(task.getResult().getUser().getUid()).child("checkIn").child("pos").setValue(0);
 
                         }
                     }

@@ -29,6 +29,7 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
     private static String circleName;
     private static ArrayList<String> checkIn = new ArrayList<String>();
     private static ArrayList<String> checkOut = new ArrayList<String>();
+    private static String uid;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -58,13 +59,17 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
 
                     Toast.makeText(v.getContext(), "Deleted", Toast.LENGTH_SHORT).show();
 
-                    database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").addListenerForSingleValueEvent(new ValueEventListener() {
+                    database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if ((Boolean) dataSnapshot.getValue() == false) {
-                                if (!checkIn.get(ind).isEmpty() && checkOut.get(ind).isEmpty()) {
-                                    database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(true);
-                                }
+                            int indeks = Integer.valueOf(dataSnapshot.child("pos").getValue().toString());
+
+                            if (Integer.valueOf(visitPlanPosition.getText().toString()) == indeks) {
+                                database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(true);
+                            }
+
+                            if (indeks > ind) {
+                                database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("pos").setValue(indeks - 1);
                             }
 
                             placeName.remove(ind);
@@ -93,7 +98,7 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public VisitPlanAdapter(ArrayList<String> placeName, ArrayList<String> address, ArrayList<LatLng> latlng, String date, String circleName, ArrayList<String> checkIn, ArrayList<String> checkOut) {
+    public VisitPlanAdapter(ArrayList<String> placeName, ArrayList<String> address, ArrayList<LatLng> latlng, String date, String circleName, ArrayList<String> checkIn, ArrayList<String> checkOut, String uid) {
         if (placeName != null) this.placeName = placeName;
         if (address != null) this.address = address;
         if (latlng != null) this.latlng = latlng;
@@ -101,6 +106,7 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
         this.circleName = circleName;
         if (checkIn != null) this.checkIn = checkIn;
         if (checkOut != null) this.checkOut = checkOut;
+        this.uid = uid;
     }
 
     // Create new views (invoked by the layout manager)
@@ -136,6 +142,9 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
             holder.visitPlanStatusCheckOut.setText("Status : Checked out at " + checkOut.get(position));
         }
         holder.visitPlanPosition.setText(String.valueOf(position));
+        if (!uid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            holder.visitPlanDelete.setVisibility(View.GONE);
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)

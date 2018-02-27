@@ -1,6 +1,7 @@
 package com.example.folcotandiono.visitreporthts;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ public class CircleOptionsActivity extends AppCompatActivity {
     private RecyclerView circleOptionsRecyclerView;
     private RecyclerView.Adapter circleOptionsAdapter;
     private RecyclerView.LayoutManager circleOptionsLayoutManager;
+    private Parcelable recyclerViewState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +98,14 @@ public class CircleOptionsActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             listCircleCode[finalI] = "Code : " + (String) dataSnapshot.getValue();
 
+                            recyclerViewState = circleOptionsRecyclerView.getLayoutManager().onSaveInstanceState();
+
                             // specify an adapter (see also next example)
                             circleOptionsAdapter = new CircleOptionsAdapter(listCircleName, listCircleCode);
                             circleOptionsRecyclerView.setAdapter(circleOptionsAdapter);
+
+                            circleOptionsRecyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
                         }
 
                         @Override

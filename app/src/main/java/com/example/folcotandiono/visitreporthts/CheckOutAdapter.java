@@ -20,42 +20,45 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
- * Created by Folco Tandiono on 21/02/2018.
+ * Created by Folco Tandiono on 25/02/2018.
  */
 
-public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHolder> {
+public class CheckOutAdapter extends RecyclerView.Adapter<CheckOutAdapter.ViewHolder> {
     private static ArrayList<String> placeName = new ArrayList<String>();
     private static ArrayList<String> address = new ArrayList<String>();
-    private static ArrayList<String> checkIn = new ArrayList<String>();
+    private static ArrayList<String> checkOut = new ArrayList<String>();
     private static ArrayList<LatLng> latlng = new ArrayList<LatLng>();
     private static String circleName;
     private static String date;
+    private static int pos;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView cardCheckInPosition;
-        public TextView cardCheckInPlaceName;
-        public TextView cardCheckInAddress;
-        public TextView cardCheckInStatusCheckIn;
-        public Button cardCheckInButton;
+        public TextView cardCheckOutPosition;
+        public TextView cardCheckOutPlaceName;
+        public TextView cardCheckOutAddress;
+        public TextView cardCheckOutStatusCheckOut;
+        public Button cardCheckOutButton;
+        public View cardCheckOutView;
 
         public ViewHolder(View v) {
             super(v);
-            cardCheckInPosition = v.findViewById(R.id.cardCheckInPosition);
-            cardCheckInPlaceName = v.findViewById(R.id.cardCheckInPlaceName);
-            cardCheckInAddress = v.findViewById(R.id.cardCheckInAddress);
-            cardCheckInStatusCheckIn = v.findViewById(R.id.cardCheckInStatusCheckIn);
-            cardCheckInButton = v.findViewById(R.id.cardCheckInButton);
+            cardCheckOutView = v;
+            cardCheckOutPosition = v.findViewById(R.id.cardCheckOutPosition);
+            cardCheckOutPlaceName = v.findViewById(R.id.cardCheckOutPlaceName);
+            cardCheckOutAddress = v.findViewById(R.id.cardCheckOutAddress);
+            cardCheckOutStatusCheckOut = v.findViewById(R.id.cardCheckOutStatusCheckOut);
+            cardCheckOutButton = v.findViewById(R.id.cardCheckOutButton);
 
-            cardCheckInButton.setOnClickListener(new View.OnClickListener() {
+            cardCheckOutButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    final int pos = Integer.valueOf(cardCheckInPosition.getText().toString());
-                    if (!checkIn.get(pos).isEmpty()) {
-                        Toast.makeText(v.getContext(), "Already checked in", Toast.LENGTH_SHORT).show();
+                    final int ind = Integer.valueOf(cardCheckOutPosition.getText().toString());
+                    if (!checkOut.get(ind).isEmpty()) {
+                        Toast.makeText(v.getContext(), "Already checked out", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -63,16 +66,19 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Boolean bisaCheckIn = (Boolean) dataSnapshot.getValue();
-                            if (bisaCheckIn == true) {
-
+                            if (bisaCheckIn == false) {
+                                if (pos != ind) {
+                                    Toast.makeText(v.getContext(), "Please check out at the last place you check in", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
                                 database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         LatLng positionNow;
                                         positionNow = new LatLng((double) dataSnapshot.child("lat").getValue(), (double) dataSnapshot.child("lng").getValue());
                                         double radius = (double) v.getContext().getResources().getInteger(R.integer.radius);
-                                        
-                                        LatLng positionTo = new LatLng(latlng.get(pos).latitude, latlng.get(pos).longitude);
+
+                                        LatLng positionTo = new LatLng(latlng.get(ind).latitude, latlng.get(ind).longitude);
                                         Location now = new Location("now");
                                         now.setLatitude(positionNow.latitude);
                                         now.setLongitude(positionNow.longitude);
@@ -83,14 +89,11 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
 
                                         if (jarak <= radius) {
                                             Calendar calendar = Calendar.getInstance();
-                                            checkIn.set(pos, calendar.getTime().toString());
-                                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkIn").setValue(checkIn);
-                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(false);
-                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("circle").setValue(circleName);
-                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("date").setValue(calendar.getTime().toString());
-                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("pos").setValue(Integer.valueOf(cardCheckInPosition.getText().toString()));
+                                            checkOut.set(ind, calendar.getTime().toString());
+                                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkOut").setValue(checkOut);
+                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(true);
 
-                                            Toast.makeText(v.getContext(), "Checked in", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(v.getContext(), "Checked out", Toast.LENGTH_SHORT).show();
 
                                         } else {
                                             Toast.makeText(v.getContext(), "Not in location radius", Toast.LENGTH_SHORT).show();
@@ -104,7 +107,7 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
                                 });
 
                             } else {
-                                Toast.makeText(v.getContext(), "Check out first", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(v.getContext(), "Check in first", Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -119,22 +122,23 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public CheckInAdapter(ArrayList<String> placeName, ArrayList<String> address, ArrayList<String> checkIn, String circleName, String date, ArrayList<LatLng> latlng) {
+    public CheckOutAdapter(ArrayList<String> placeName, ArrayList<String> address, ArrayList<String> checkOut, String circleName, String date, ArrayList<LatLng> latlng, int pos) {
         if (placeName != null) this.placeName = placeName;
         if (address != null) this.address = address;
-        if (checkIn != null) this.checkIn = checkIn;
+        if (checkOut != null) this.checkOut = checkOut;
         this.circleName = circleName;
         this.date = date;
         if (latlng != null) this.latlng = latlng;
+        this.pos = pos;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent,
+    public CheckOutAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                         int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_check_in, parent, false);
+                .inflate(R.layout.card_check_out, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);
@@ -146,13 +150,13 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.cardCheckInPosition.setText(String.valueOf(position));
-        holder.cardCheckInPlaceName.setText(placeName.get(position));
-        holder.cardCheckInAddress.setText(address.get(position));
-        if (checkIn.get(position).isEmpty()) {
-            holder.cardCheckInStatusCheckIn.setText("Status : Have not checked in");
+        holder.cardCheckOutPosition.setText(String.valueOf(position));
+        holder.cardCheckOutPlaceName.setText(placeName.get(position));
+        holder.cardCheckOutAddress.setText(address.get(position));
+        if (checkOut.get(position).isEmpty()) {
+            holder.cardCheckOutStatusCheckOut.setText("Status : Have not checked out");
         } else {
-            holder.cardCheckInStatusCheckIn.setText("Status : Checked in at " + checkIn.get(position));
+            holder.cardCheckOutStatusCheckOut.setText("Status : Checked out at " + checkOut.get(position));
         }
     }
 

@@ -13,6 +13,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Parcelable;
+import android.os.ResultReceiver;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,6 +26,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -80,18 +85,44 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Toolbar homeToolbar;
     private Menu homeMenu;
     private SubMenu homeSubMenu;
+    private RecyclerView homeRecyclerView;
+    private RecyclerView.Adapter homeAdapter;
+    private RecyclerView.LayoutManager homeLayoutManager;
 
     private FirebaseAuth homeAuth;
     private FirebaseAuth.AuthStateListener homeAuthListener;
     private FirebaseDatabase homeDatabase;
 
     private GoogleMap mMap;
-    private FusedLocationProviderClient mFusedLocationClient;
+    private static FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest mLocationRequest;
-    private LocationCallback mLocationCallback;
+    private static LocationCallback mLocationCallback;
 
     private Boolean circleChosen;
     private String circleChosenStr;
+    private AddressResultReceiver mResultReceiver;
+    private Location mLastLocation;
+    private Parcelable recyclerViewState;
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string
+            // or an error message sent from the intent service.
+            String mAddressOutput = resultData.getString("address");
+
+            // Show a toast message if an address was found.
+            if (resultCode == 0) {
+                homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).child("address").setValue(mAddressOutput);
+            }
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +147,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void initObject() {
+        mResultReceiver = new AddressResultReceiver(new Handler());
 
         circleChosen = false;
 
@@ -142,6 +174,15 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.homeMapFragment);
         mapFragment.getMapAsync(this);
 
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        homeRecyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager
+        homeLayoutManager = new LinearLayoutManager(this);
+        homeRecyclerView.setLayoutManager(homeLayoutManager);
+
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         createLocationRequest();
         mLocationCallback = new LocationCallback() {
@@ -158,10 +199,22 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).child("lat").setValue(temp.getLatitude());
                     homeDatabase.getReference("User").child(homeAuth.getCurrentUser().getUid()).child("lng").setValue(temp.getLongitude());
 
+                    if (Geocoder.isPresent()) {
+
+                        mLastLocation = new Location("");
+                        mLastLocation.setLatitude(temp.getLatitude());
+                        mLastLocation.setLongitude(temp.getLongitude());
+
+                        startIntentService();
+                    }
+
                     if (circleChosen) {
                         homeDatabase.getReference("Circle").child(circleChosenStr).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                final ArrayList<String> name = new ArrayList<String>();
+                                final ArrayList<String> address = new ArrayList<String>();
+                                recyclerViewState = homeRecyclerView.getLayoutManager().onSaveInstanceState();
                                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                     homeDatabase.getReference("User").child((String) snapshot.getValue()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
@@ -171,6 +224,14 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                                             mMap.addMarker(new MarkerOptions()
                                                     .position(new LatLng(lat, lng))
                                                     .title((String) dataSnapshot.child("name").getValue()));
+
+                                            name.add((String) dataSnapshot.child("name").getValue());
+                                            address.add((String) dataSnapshot.child("address").getValue());
+
+                                            homeAdapter = new HomeAdapter(name, address);
+                                            homeRecyclerView.setAdapter(homeAdapter);
+                                            homeRecyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
                                         }
 
                                         @Override
@@ -179,6 +240,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         }
                                     });
                                 }
+
+//                                homeAdapter = new HomeAdapter(name, address);
+//                                homeRecyclerView.setAdapter(homeAdapter);
                             }
 
                             @Override
@@ -196,6 +260,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         homeMenu = homeNavigationView.getMenu();
         homeSubMenu = homeMenu.addSubMenu("My Circles");
+    }
+
+    protected void startIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra("receiver", mResultReceiver);
+        intent.putExtra("location", mLastLocation);
+        startService(intent);
     }
 
     private void initMyCircles() {
@@ -261,6 +332,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         homeNavigationView = (NavigationView) findViewById(R.id.homeNavigationView);
+
+        homeRecyclerView = (RecyclerView) findViewById(R.id.homeRecyclerView);
     }
 
     @Override
@@ -272,6 +345,14 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (circleChosen) {
                 Intent intent = new Intent(HomeActivity.this, CheckInActivity.class);
                 intent.putExtra("circleName", circleChosenStr);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (item.getItemId() == R.id.menu_checkout) {
+            if (circleChosen) {
+                Intent intent = new Intent(HomeActivity.this, CheckOutActivity.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
@@ -305,7 +386,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     ArrayList<String> circle = new ArrayList<>();
-                    if (dataSnapshot.getValue() != null) circle = (ArrayList<String>) dataSnapshot.getValue();
+                    if (dataSnapshot.getValue() != null)
+                        circle = (ArrayList<String>) dataSnapshot.getValue();
 
                     Boolean ada = false;
 
@@ -319,7 +401,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (!ada) {
                         circleChosen = false;
                         circleChosenStr = "";
-                        getSupportActionBar().setTitle("VisitReportForHTS");
+                        getSupportActionBar().setTitle("VisitReportHTS");
                     }
                 }
 
@@ -354,7 +436,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 //        stopLocationUpdates();
     }
 
-    private void stopLocationUpdates() {
+    public static void stopLocationUpdates() {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
@@ -391,13 +473,17 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (circleChosen) {
                 Intent intent = new Intent(HomeActivity.this, VisitPlanActivity.class);
                 intent.putExtra("circleName", circleChosenStr);
+                intent.putExtra("uid", homeAuth.getCurrentUser().getUid());
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
             }
         } else if (item.getItemId() == R.id.drawerMenuLogOut) {
             finish();
+            homeAuth.signOut();
+            stopLocationUpdates();
             Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         } else if (item.getItemId() == R.id.drawerMenuJoinCycle) {
             Intent intent = new Intent(HomeActivity.this, JoinCircleActivity.class);

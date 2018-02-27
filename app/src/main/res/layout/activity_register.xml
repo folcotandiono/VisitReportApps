@@ -62,11 +62,6 @@
             android:layout_height="wrap_content"
             android:text="Choose your role : "/>
 
-        <Spinner
-            android:id="@+id/registerRole"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

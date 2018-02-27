@@ -2,24 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.example.folcotandiono.visitreporthts.CheckInActivity">
+    tools:context="com.example.folcotandiono.visitreporthts.CheckOutActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/checkInToolbar"
+        android:id="@+id/checkOutToolbar"
         app:titleTextColor="@android:color/white"
         android:background="?attr/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"></android.support.v7.widget.Toolbar>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/checkInRecyclerView"
+        android:id="@+id/checkOutRecyclerView"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

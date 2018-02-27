@@ -21,6 +21,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import static com.example.folcotandiono.visitreporthts.HomeActivity.stopLocationUpdates;
+
 public class SettingsActivity extends AppCompatActivity {
 
     private FirebaseAuth settingsAuth;
@@ -69,7 +71,10 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                settingsAuth.signOut();
+                stopLocationUpdates();
                 Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
         });

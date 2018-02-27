@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreporthts;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -43,6 +45,25 @@ public class CircleDetailsAdapter extends RecyclerView.Adapter<CircleDetailsAdap
             circleDetailsId = v.findViewById(R.id.cardCircleDetailsId);
             circleDetailsName = v.findViewById(R.id.cardCircleDetailsName);
             circleDetailsKick = v.findViewById(R.id.cardCircleDetailsKick);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+
+                    if (idUser.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        String uid = circleDetailsId.getText().toString();
+
+                        Intent intent = new Intent(v.getContext(), VisitPlanActivity.class);
+                        intent.putExtra("circleName", circleName);
+                        intent.putExtra("uid", uid);
+                        v.getContext().startActivity(intent);
+                    }
+                    else {
+                        Toast.makeText(v.getContext(), "Not admin of circle", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
 
             circleDetailsKick.setOnClickListener(new View.OnClickListener() {
                 @Override

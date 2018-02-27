@@ -1,6 +1,7 @@
 package com.example.folcotandiono.visitreporthts;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,7 @@ public class CheckInActivity extends AppCompatActivity {
     private RecyclerView checkInRecyclerView;
     private RecyclerView.Adapter checkInAdapter;
     private RecyclerView.LayoutManager checkInLayoutManager;
+    private Parcelable recyclerViewState;
 
     private ArrayList<String> address = new ArrayList<String>();
     private ArrayList<String> placeName = new ArrayList<String>();
@@ -107,8 +109,13 @@ public class CheckInActivity extends AppCompatActivity {
                 else checkOut = new ArrayList<String>();
 
                 if (address.size() == placeName.size() && placeName.size() == latlng.size() && latlng.size() == checkIn.size() && checkIn.size() == checkOut.size()) {
+                    recyclerViewState = checkInRecyclerView.getLayoutManager().onSaveInstanceState();
+
                     checkInAdapter = new CheckInAdapter(placeName, address, checkIn, circleName, date, latlng);
                     checkInRecyclerView.setAdapter(checkInAdapter);
+
+                    checkInRecyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
+
                 }
             }
 
