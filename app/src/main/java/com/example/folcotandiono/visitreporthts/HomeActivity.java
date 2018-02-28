@@ -478,6 +478,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else {
                 Toast.makeText(this, "Choose Circle", Toast.LENGTH_SHORT).show();
             }
+        } else if(item.getItemId() == R.id.drawerMenuCustomer) {
+            Intent intent = new Intent(HomeActivity.this, CustomerActivity.class);
+            startActivity(intent);
         } else if (item.getItemId() == R.id.drawerMenuLogOut) {
             finish();
             homeAuth.signOut();

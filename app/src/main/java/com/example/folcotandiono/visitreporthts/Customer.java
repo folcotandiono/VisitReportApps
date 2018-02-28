@@ -7,29 +7,11 @@ import android.graphics.Bitmap;
  */
 
 public class Customer {
-    long idCustomer;
-    String name, address, customerArea;
-    byte[] photoExterior;
-    String location, qrCode;
+    String address, url;
+    double lat, lng;
 
     public Customer() {
 
-    }
-
-    public long getIdCustomer() {
-        return idCustomer;
-    }
-
-    public void setIdCustomer(long idCustomer) {
-        this.idCustomer = idCustomer;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getAddress() {
@@ -40,35 +22,27 @@ public class Customer {
         this.address = address;
     }
 
-    public String getCustomerArea() {
-        return customerArea;
+    public String getUrl() {
+        return url;
     }
 
-    public void setCustomerArea(String customerArea) {
-        this.customerArea = customerArea;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public byte[] getPhotoExterior() {
-        return photoExterior;
+    public double getLat() {
+        return lat;
     }
 
-    public void setPhotoExterior(byte[] photoExterior) {
-        this.photoExterior = photoExterior;
+    public void setLat(double lat) {
+        this.lat = lat;
     }
 
-    public String getLocation() {
-        return location;
+    public double getLng() {
+        return lng;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getQrCode() {
-        return qrCode;
-    }
-
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
+    public void setLng(double lng) {
+        this.lng = lng;
     }
 }

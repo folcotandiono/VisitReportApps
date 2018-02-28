@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
 
@@ -19,9 +22,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.example.folcotandiono.visitreporthts.android.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <service
             android:name=".FetchAddressIntentService"
-            android:exported="false"/>
+            android:exported="false" />
+
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,8 +64,11 @@
         <activity android:name=".CircleDetailsActivity" />
         <activity android:name=".ChangePasswordActivity" />
         <activity android:name=".VisitPlanActivity" />
-        <activity android:name=".CheckInActivity"></activity>
-        <activity android:name=".CheckOutActivity"></activity>
+        <activity android:name=".CheckInActivity" />
+        <activity android:name=".CheckOutActivity" />
+        <activity android:name=".CustomerActivity" />
+        <activity android:name=".AddCustomerActivity" />
+        <activity android:name=".CustomerDetailActivity"></activity>
     </application>
 
 </manifest>
