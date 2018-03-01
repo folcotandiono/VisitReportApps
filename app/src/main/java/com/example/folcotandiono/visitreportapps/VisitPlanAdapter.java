@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreportapps;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,37 +54,55 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
 
             visitPlanDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(final View v) {
                     final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    final int ind = Integer.valueOf(visitPlanPosition.getText().toString());
 
-                    Toast.makeText(v.getContext(), "Deleted", Toast.LENGTH_SHORT).show();
-
-                    database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").addListenerForSingleValueEvent(new ValueEventListener() {
+                    database.getReference("VisitPlan").child(uid).child(circleName).child(date).child("statusVerified").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            int indeks = Integer.valueOf(dataSnapshot.child("pos").getValue().toString());
+                            Boolean statusVerified = (Boolean) dataSnapshot.getValue();
 
-                            if (Integer.valueOf(visitPlanPosition.getText().toString()) == indeks) {
-                                database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(true);
+                            if (statusVerified != null && statusVerified) {
+                                Toast.makeText(v.getContext(), "Visit plan already verified", Toast.LENGTH_SHORT).show();
+                                return;
                             }
 
-                            if (indeks > ind) {
-                                database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("pos").setValue(indeks - 1);
-                            }
+                            final int ind = Integer.valueOf(visitPlanPosition.getText().toString());
 
-                            placeName.remove(ind);
-                            address.remove(ind);
-                            latlng.remove(ind);
-                            checkIn.remove(ind);
-                            checkOut.remove(ind);
+                            Toast.makeText(v.getContext(), "Deleted", Toast.LENGTH_SHORT).show();
 
-                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("placeName").setValue(placeName);
-                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("address").setValue(address);
-                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("latlng").setValue(latlng);
-                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkIn").setValue(checkIn);
-                            database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkOut").setValue(checkOut);
+                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    int indeks = Integer.valueOf(dataSnapshot.child("pos").getValue().toString());
 
+                                    if (Integer.valueOf(visitPlanPosition.getText().toString()) == indeks) {
+                                        database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(true);
+                                    }
+
+                                    if (indeks > ind) {
+                                        database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("pos").setValue(indeks - 1);
+                                    }
+
+                                    placeName.remove(ind);
+                                    address.remove(ind);
+                                    latlng.remove(ind);
+                                    checkIn.remove(ind);
+                                    checkOut.remove(ind);
+
+                                    database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("placeName").setValue(placeName);
+                                    database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("address").setValue(address);
+                                    database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("latlng").setValue(latlng);
+                                    database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkIn").setValue(checkIn);
+                                    database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkOut").setValue(checkOut);
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                         }
 
                         @Override
@@ -91,7 +110,6 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
 
                         }
                     });
-
                 }
             });
         }
@@ -130,16 +148,20 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
         holder.visitPlanPlaceName.setText(placeName.get(position));
         holder.visitPlanAddress.setText(address.get(position));
         if (checkIn.get(position).isEmpty()) {
-            holder.visitPlanStatusCheckIn.setText("Status : Have not checked in");
+            holder.visitPlanStatusCheckIn.setText("Have not checked in");
+            holder.visitPlanStatusCheckIn.setTextColor(Color.parseColor("#ff0000"));
         }
         else {
-            holder.visitPlanStatusCheckIn.setText("Status : Checked in at " + checkIn.get(position));
+            holder.visitPlanStatusCheckIn.setText("Checked in at " + checkIn.get(position));
+            holder.visitPlanStatusCheckIn.setTextColor(Color.parseColor("#00ff00"));
         }
         if (checkOut.get(position).isEmpty()) {
-            holder.visitPlanStatusCheckOut.setText("Status : Have not checked out");
+            holder.visitPlanStatusCheckOut.setText("Have not checked out");
+            holder.visitPlanStatusCheckOut.setTextColor(Color.parseColor("#ff0000"));
         }
         else {
-            holder.visitPlanStatusCheckOut.setText("Status : Checked out at " + checkOut.get(position));
+            holder.visitPlanStatusCheckOut.setText("Checked out at " + checkOut.get(position));
+            holder.visitPlanStatusCheckOut.setTextColor(Color.parseColor("#00ff00"));
         }
         holder.visitPlanPosition.setText(String.valueOf(position));
         if (!uid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {

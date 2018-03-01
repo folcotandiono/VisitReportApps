@@ -66,23 +66,41 @@ public class AddVisitPlanAdapter extends RecyclerView.Adapter<AddVisitPlanAdapte
                     firebaseDatabase.getReference("Customer").child(cardAddVisitPlanPlaceName.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            LatLng temp = new LatLng((double) dataSnapshot.child("lat").getValue(), (double) dataSnapshot.child("lng").getValue());
+                            final LatLng temp = new LatLng((double) dataSnapshot.child("lat").getValue(), (double) dataSnapshot.child("lng").getValue());
 
-                            placeName.add(cardAddVisitPlanPlaceName.getText().toString());
-                            address.add(cardAddVisitPlanAddress.getText().toString());
-                            latlng.add(temp);
-                            checkIn.add("");
-                            checkOut.add("");
+                            firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("statusVerified").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Boolean statusVerified = (Boolean) dataSnapshot.getValue();
+                                    if (statusVerified != null && statusVerified) {
+                                        Toast.makeText(v.getContext(), "Visit plan already verified", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else {
+                                        firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("statusVerified").setValue(false);
 
-                            firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("placeName").setValue(placeName);
-                            firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("address").setValue(address);
-                            firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("latlng").setValue(latlng);
-                            firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkIn").setValue(checkIn);
-                            firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkOut").setValue(checkOut);
+                                        placeName.add(cardAddVisitPlanPlaceName.getText().toString());
+                                        address.add(cardAddVisitPlanAddress.getText().toString());
+                                        latlng.add(temp);
+                                        checkIn.add("");
+                                        checkOut.add("");
 
-                            Toast.makeText(v.getContext(), "Added to visit plan", Toast.LENGTH_SHORT).show();
+                                        firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("placeName").setValue(placeName);
+                                        firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("address").setValue(address);
+                                        firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("latlng").setValue(latlng);
+                                        firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkIn").setValue(checkIn);
+                                        firebaseDatabase.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkOut").setValue(checkOut);
 
-                            ((AddVisitPlanActivity) v.getContext()).onBackPressed();
+                                        Toast.makeText(v.getContext(), "Added to visit plan", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    ((AddVisitPlanActivity) v.getContext()).onBackPressed();
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                         }
 
                         @Override

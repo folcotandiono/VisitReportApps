@@ -69,20 +69,7 @@ public class CheckOutActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final int pos = Integer.valueOf(dataSnapshot.child("checkIn").child("pos").getValue().toString());
                 circleName = (String) dataSnapshot.child("checkIn").child("circle").getValue();
-                Calendar calendar = Calendar.getInstance();
-//                calendar.setTime((Date) dataSnapshot.child("checkIn").child("date").getValue());
-
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-                try {
-                    calendar.setTime(sdf.parse((String) dataSnapshot.child("checkIn").child("date").getValue()));
-
-                    String formatTanggal = "dd-MM-yyyy";
-                    sdf = new SimpleDateFormat(formatTanggal);
-                    date = sdf.format(calendar.getTime());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                Log.d("hahaha", date);
+                date = (String) dataSnapshot.child("checkIn").child("date").getValue();
 
                 checkOutDatabase.getReference("VisitPlan").child(checkOutAuth.getCurrentUser().getUid()).child(circleName).child(date).addValueEventListener(new ValueEventListener() {
                     @Override

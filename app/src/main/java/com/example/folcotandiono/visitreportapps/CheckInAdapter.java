@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreportapps;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -58,20 +60,35 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
                         Toast.makeText(v.getContext(), "Already checked in", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
                     final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").addListenerForSingleValueEvent(new ValueEventListener() {
+                    database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("statusVerified").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            Boolean bisaCheckIn = (Boolean) dataSnapshot.getValue();
-                            if (bisaCheckIn == true) {
+                            Boolean statusVerified = (Boolean) dataSnapshot.getValue();
 
-                                database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (statusVerified == null || statusVerified == false) {
+                                Toast.makeText(v.getContext(), "Visit plan not verified", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Boolean bisaCheckIn = (Boolean) dataSnapshot.child("checkIn").child("status").getValue();
+                                    if (bisaCheckIn == false) {
+                                        String tanggalCheckIn = (String) dataSnapshot.child("checkIn").child("date").getValue();
+
+                                        if (!tanggalCheckIn.equals(date)) {
+                                            bisaCheckIn = true;
+                                        } else {
+                                            Toast.makeText(v.getContext(), "Check out first", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                    if (bisaCheckIn) {
                                         LatLng positionNow;
                                         positionNow = new LatLng((double) dataSnapshot.child("lat").getValue(), (double) dataSnapshot.child("lng").getValue());
                                         double radius = (double) v.getContext().getResources().getInteger(R.integer.radius);
-                                        
+
                                         LatLng positionTo = new LatLng(latlng.get(pos).latitude, latlng.get(pos).longitude);
                                         Location now = new Location("now");
                                         now.setLatitude(positionNow.latitude);
@@ -83,11 +100,12 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
 
                                         if (jarak <= radius) {
                                             Calendar calendar = Calendar.getInstance();
+
                                             checkIn.set(pos, calendar.getTime().toString());
                                             database.getReference("VisitPlan").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(circleName).child(date).child("checkIn").setValue(checkIn);
                                             database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("status").setValue(false);
                                             database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("circle").setValue(circleName);
-                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("date").setValue(calendar.getTime().toString());
+                                            database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("date").setValue(date);
                                             database.getReference("User").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("checkIn").child("pos").setValue(Integer.valueOf(cardCheckInPosition.getText().toString()));
 
                                             Toast.makeText(v.getContext(), "Checked in", Toast.LENGTH_SHORT).show();
@@ -95,17 +113,16 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
                                         } else {
                                             Toast.makeText(v.getContext(), "Not in location radius", Toast.LENGTH_SHORT).show();
                                         }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
 
                                     }
-                                });
+                                }
 
-                            } else {
-                                Toast.makeText(v.getContext(), "Check out first", Toast.LENGTH_SHORT).show();
-                            }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
                         }
 
                         @Override
@@ -113,6 +130,7 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
 
                         }
                     });
+
                 }
             });
         }
@@ -131,7 +149,7 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
     // Create new views (invoked by the layout manager)
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                        int viewType) {
+                                         int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_check_in, parent, false);
@@ -150,9 +168,11 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
         holder.cardCheckInPlaceName.setText(placeName.get(position));
         holder.cardCheckInAddress.setText(address.get(position));
         if (checkIn.get(position).isEmpty()) {
-            holder.cardCheckInStatusCheckIn.setText("Status : Have not checked in");
+            holder.cardCheckInStatusCheckIn.setText("Have not checked in");
+            holder.cardCheckInStatusCheckIn.setTextColor(Color.parseColor("#ff0000"));
         } else {
-            holder.cardCheckInStatusCheckIn.setText("Status : Checked in at " + checkIn.get(position));
+            holder.cardCheckInStatusCheckIn.setText("Checked in at " + checkIn.get(position));
+            holder.cardCheckInStatusCheckIn.setTextColor(Color.parseColor("#00ff00"));
         }
     }
 

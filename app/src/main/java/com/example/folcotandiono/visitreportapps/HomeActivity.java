@@ -157,6 +157,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                    stopLocationUpdates();
+                    return;
+                }
                 Location temp = null;
                 for (Location location : locationResult.getLocations()) {
                     // Update UI with location data

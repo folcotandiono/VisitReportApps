@@ -10,6 +10,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -239,6 +241,54 @@ public class VisitPlanActivity extends AppCompatActivity {
         visitPlanRecyclerView.setHasFixedSize(true);
 
         visitPlanToolbar = (Toolbar) findViewById(R.id.visitPlanToolbar);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        FirebaseDatabase.getInstance().getReference("Circle").child(getIntent().getStringExtra("circleName").toString()).child("idUser").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    getMenuInflater().inflate(R.menu.menu_visit_plan, menu);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.visitPlanVerify) {
+            if (visitPlanDate.getText().toString().isEmpty()) {
+                Toast.makeText(this, "Please choose date", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            visitPlanDatabase.getReference("VisitPlan").child(uid).child(circleName).child(visitPlanDate.getText().toString()).child("statusVerified").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Boolean statusVerified = (Boolean) dataSnapshot.getValue();
+
+                    if (statusVerified != null && statusVerified) {
+                        Toast.makeText(VisitPlanActivity.this, "Visit plan is already verified", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        visitPlanDatabase.getReference("VisitPlan").child(uid).child(circleName).child(visitPlanDate.getText().toString()).child("statusVerified").setValue(true);
+                        Toast.makeText(VisitPlanActivity.this, "Visit plan verified", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

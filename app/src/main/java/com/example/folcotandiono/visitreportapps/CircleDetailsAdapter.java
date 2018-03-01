@@ -70,7 +70,7 @@ public class CircleDetailsAdapter extends RecyclerView.Adapter<CircleDetailsAdap
                 public void onClick(View v) {
                     Log.d("position", circleDetailsPosition.getText().toString());
                     final FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-                    Toast.makeText(v.getContext(), "Deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(v.getContext(), "Kicked", Toast.LENGTH_SHORT).show();
                     firebaseDatabase.getReference("Circle").child(circleName).child("id").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreportapps;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -154,9 +155,11 @@ public class CheckOutAdapter extends RecyclerView.Adapter<CheckOutAdapter.ViewHo
         holder.cardCheckOutPlaceName.setText(placeName.get(position));
         holder.cardCheckOutAddress.setText(address.get(position));
         if (checkOut.get(position).isEmpty()) {
-            holder.cardCheckOutStatusCheckOut.setText("Status : Have not checked out");
+            holder.cardCheckOutStatusCheckOut.setText("Have not checked out");
+            holder.cardCheckOutStatusCheckOut.setTextColor(Color.parseColor("#ff0000"));
         } else {
-            holder.cardCheckOutStatusCheckOut.setText("Status : Checked out at " + checkOut.get(position));
+            holder.cardCheckOutStatusCheckOut.setText("Checked out at " + checkOut.get(position));
+            holder.cardCheckOutStatusCheckOut.setTextColor(Color.parseColor("#00ff00"));
         }
     }
 
