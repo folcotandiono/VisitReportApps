@@ -6,23 +6,18 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:id="@+id/registerLinearLayout"
-    tools:context="com.example.folcotandiono.visitreporthts.RegisterActivity">
+    tools:context="com.example.folcotandiono.visitreportapps.RegisterActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/logo_hts"/>
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Visit Report">
+            android:text="Visit Report Apps">
         </TextView>
 
         <EditText
@@ -56,11 +51,6 @@
             android:inputType="textPassword"
             android:id="@+id/registerRePassword"
             android:hint="Re-Password"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Choose your role : "/>
 
         <Button
             android:layout_width="match_parent"

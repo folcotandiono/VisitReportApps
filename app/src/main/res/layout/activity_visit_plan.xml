@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.folcotandiono.visitreporthts.VisitPlanActivity">
+    tools:context="com.example.folcotandiono.visitreportapps.VisitPlanActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/visitPlanToolbar"
@@ -37,8 +37,8 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/visitPlanAddPlace"
-            android:text="Add Place"
+            android:id="@+id/visitPlanAddCustomer"
+            android:text="Add Customer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true" />

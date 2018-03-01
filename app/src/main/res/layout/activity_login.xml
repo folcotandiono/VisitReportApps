@@ -5,23 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context="com.example.folcotandiono.visitreporthts.LoginActivity">
+    tools:context="com.example.folcotandiono.visitreportapps.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/logo_hts" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Visit Report"></TextView>
+            android:text="Visit Report Apps"></TextView>
 
         <EditText
             android:id="@+id/loginEmail"

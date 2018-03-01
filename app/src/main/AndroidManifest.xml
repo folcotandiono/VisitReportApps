@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.folcotandiono.visitreporthts">
+    package="com.example.folcotandiono.visitreportapps">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -24,7 +24,7 @@
         android:theme="@style/AppTheme">
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.example.folcotandiono.visitreporthts.android.fileprovider"
+            android:authorities="com.example.folcotandiono.visitreportapps.android.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -52,7 +52,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCNOFWS57u2Q0TeIlUOLHamH-MBk8zW9GU" />
+            android:value="AIzaSyBaVWmHFqCRS-KabzYbr5L0MxKzPSPP3Rw" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -68,7 +68,8 @@
         <activity android:name=".CheckOutActivity" />
         <activity android:name=".CustomerActivity" />
         <activity android:name=".AddCustomerActivity" />
-        <activity android:name=".CustomerDetailActivity"></activity>
+        <activity android:name=".CustomerDetailActivity" />
+        <activity android:name=".AddVisitPlanActivity"></activity>
     </application>
 
 </manifest>
