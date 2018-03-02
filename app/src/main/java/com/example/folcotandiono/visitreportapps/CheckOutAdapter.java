@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreportapps;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +46,7 @@ public class CheckOutAdapter extends RecyclerView.Adapter<CheckOutAdapter.ViewHo
         public Button cardCheckOutButton;
         public View cardCheckOutView;
 
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
             super(v);
             cardCheckOutView = v;
             cardCheckOutPosition = v.findViewById(R.id.cardCheckOutPosition);
@@ -53,6 +54,15 @@ public class CheckOutAdapter extends RecyclerView.Adapter<CheckOutAdapter.ViewHo
             cardCheckOutAddress = v.findViewById(R.id.cardCheckOutAddress);
             cardCheckOutStatusCheckOut = v.findViewById(R.id.cardCheckOutStatusCheckOut);
             cardCheckOutButton = v.findViewById(R.id.cardCheckOutButton);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(v.getContext(), CustomerDetailActivity.class);
+                    intent.putExtra("placeName", cardCheckOutPlaceName.getText().toString());
+                    v.getContext().startActivity(intent);
+                }
+            });
 
             cardCheckOutButton.setOnClickListener(new View.OnClickListener() {
                 @Override

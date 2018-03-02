@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreportapps;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
@@ -44,13 +45,22 @@ public class CheckInAdapter extends RecyclerView.Adapter<CheckInAdapter.ViewHold
         public TextView cardCheckInStatusCheckIn;
         public Button cardCheckInButton;
 
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
             super(v);
             cardCheckInPosition = v.findViewById(R.id.cardCheckInPosition);
             cardCheckInPlaceName = v.findViewById(R.id.cardCheckInPlaceName);
             cardCheckInAddress = v.findViewById(R.id.cardCheckInAddress);
             cardCheckInStatusCheckIn = v.findViewById(R.id.cardCheckInStatusCheckIn);
             cardCheckInButton = v.findViewById(R.id.cardCheckInButton);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(v.getContext(), CustomerDetailActivity.class);
+                    intent.putExtra("placeName", cardCheckInPlaceName.getText().toString());
+                    v.getContext().startActivity(intent);
+                }
+            });
 
             cardCheckInButton.setOnClickListener(new View.OnClickListener() {
                 @Override

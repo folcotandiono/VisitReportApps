@@ -1,5 +1,6 @@
 package com.example.folcotandiono.visitreportapps;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,7 +44,7 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
         public TextView visitPlanStatusCheckIn;
         public TextView visitPlanStatusCheckOut;
         public Button visitPlanDelete;
-        public ViewHolder(View v) {
+        public ViewHolder(final View v) {
             super(v);
             visitPlanPosition = v.findViewById(R.id.cardVisitPlanPosition);
             visitPlanPlaceName = v.findViewById(R.id.cardVisitPlanPlaceName);
@@ -51,6 +52,15 @@ public class VisitPlanAdapter extends RecyclerView.Adapter<VisitPlanAdapter.View
             visitPlanStatusCheckIn = v.findViewById(R.id.cardVisitPlanStatusCheckIn);
             visitPlanStatusCheckOut = v.findViewById(R.id.cardVisitPlanStatusCheckOut);
             visitPlanDelete = v.findViewById(R.id.cardVisitPlanDelete);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(v.getContext(), CustomerDetailActivity.class);
+                    intent.putExtra("placeName", visitPlanPlaceName.getText().toString());
+                    v.getContext().startActivity(intent);
+                }
+            });
 
             visitPlanDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
