@@ -2,6 +2,7 @@ package com.example.folcotandiono.visitreportapps;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -46,6 +47,7 @@ public class VisitPlanActivity extends AppCompatActivity {
     private Toolbar visitPlanToolbar;
     private Button visitPlanChooseDate;
     private TextView visitPlanDate;
+    private TextView visitPlanStatusVerified;
     private Button visitPlanAddCustomer;
     private RecyclerView visitPlanRecyclerView;
     private RecyclerView.Adapter visitPlanAdapter;
@@ -97,6 +99,17 @@ public class VisitPlanActivity extends AppCompatActivity {
                         visitPlanDatabase.getReference("VisitPlan").child(uid).child(circleName).child(visitPlanDate.getText().toString()).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                Boolean statusVerified = (Boolean) dataSnapshot.child("statusVerified").getValue();
+
+                                if (statusVerified != null && statusVerified) {
+                                    visitPlanStatusVerified.setText("Visit plan is verified");
+                                    visitPlanStatusVerified.setTextColor(Color.parseColor("#00ff00"));
+                                }
+                                else {
+                                    visitPlanStatusVerified.setText("Visit plan has not verified");
+                                    visitPlanStatusVerified.setTextColor(Color.parseColor("#ff0000"));
+                                }
+
                                 if (dataSnapshot.child("address").getValue() != null) {
 //                    address = new ArrayList<String>();
 //                    for (DataSnapshot snapshot : dataSnapshot.child("address").getChildren()) {
@@ -233,6 +246,7 @@ public class VisitPlanActivity extends AppCompatActivity {
     private void initView() {
         visitPlanChooseDate = (Button) findViewById(R.id.visitPlanChooseDate);
         visitPlanDate = (TextView) findViewById(R.id.visitPlanDate);
+        visitPlanStatusVerified = findViewById(R.id.visitPlanStatusVerified);
         visitPlanAddCustomer = (Button) findViewById(R.id.visitPlanAddCustomer);
 
         visitPlanRecyclerView = (RecyclerView) findViewById(R.id.visitPlanRecyclerView);
